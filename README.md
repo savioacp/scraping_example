@@ -10,10 +10,14 @@ Simple web scraping program to fetch product name and prices from Seeed Studio A
 ## Running
 
 ```
-  mix scrape
+  mix scrape [options] [page]
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/scraping_example](https://hexdocs.pm/scraping_example).
-
+#### Options
+| Option | Description              |
+|--------|--------------------------|
+|--csv   | outputs data to out.csv  |
+|--print | prints output to console |
+#### Arguments
+| Argument | Description   |
+|----------|---------------|
+| page     | page to crawl |
