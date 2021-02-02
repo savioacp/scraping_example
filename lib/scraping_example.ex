@@ -20,13 +20,18 @@ defmodule ScrapingExample do
       :ok
 
   """
-  def main(page \\ 1) do
-    HTTPoison.get(
+  def main(args) do
+
+    {parsed, page, _} = args
+      |> OptionParser.parse(switches: [csv: :boolean, print: :boolean])
+
+    scrape_result = HTTPoison.get(
       "https://www.seeedstudio.com/category/Arduino-c-1001.html?product_list_mode=list&product_list_limit=25&p=#{page}"
     )
     |> scrape()
-    |> save()
 
+    if parsed[:csv], do: save_csv(scrape_result, "out")
+    if parsed[:print], do: print(scrape_result)
   end
 
   def scrape({:ok, %HTTPoison.Response{body: body}}) do
@@ -54,8 +59,35 @@ defmodule ScrapingExample do
     IO.puts(:stderr, reason)
   end
 
-  def save({:ok, products}) do
+  def print({:ok, products}) do
     products
-      |> Enum.each(&(IO.puts("#{&1.price} - #{&1.title}")))
+    |> Enum.each(&IO.puts("#{&1.price} - #{&1.title}"))
+
+    {:ok, products}
+  end
+
+  def save_csv({:ok, products}, filename) do
+
+    filename = unless String.ends_with?(filename, ".csv"), do: "#{filename}.csv", else: filename
+
+    case File.open(filename, [:write, :utf8]) do
+      {:ok, file} ->
+        try do
+          IO.puts(file, "sep=,")
+          IO.puts(file, "Price,Product Name")
+
+          products
+          |> Enum.each(&IO.puts(file, ~s|"#{&1.price}","#{&1.title}"|))
+
+          IO.puts("Written #{Enum.count(products)} products to #{filename}")
+        after
+          File.close(file)
+        end
+
+      {:error, reason} ->
+        IO.puts(:stderr, "Error while opening file: #{reason}")
+    end
+
+    {:ok, products}
   end
 end
