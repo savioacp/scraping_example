@@ -10,7 +10,8 @@ Simple web scraping program to fetch product name and prices from Seeed Studio A
 ## Running
 
 ```
-  mix scrape [options] [page]
+  mix escript.build
+  escript scraping_example [options] [page]
 ```
 #### Options
 | Option | Description              |
