@@ -3,6 +3,8 @@ defmodule ScrapingExample do
   Documentation for `ScrapingExample`.
   """
 
+  require Logger
+
   @doc """
   Scrape Arduino products from seeedstudio.com
 
@@ -32,6 +34,8 @@ defmodule ScrapingExample do
 
     if parsed[:csv], do: save_csv(scrape_result, "out")
     if parsed[:print], do: print(scrape_result)
+
+    {:ok, self()}
   end
 
   def scrape({:ok, %HTTPoison.Response{body: body}}) do
@@ -79,13 +83,13 @@ defmodule ScrapingExample do
           products
           |> Enum.each(&IO.puts(file, ~s|"#{&1.price}","#{&1.title}"|))
 
-          IO.puts("Written #{Enum.count(products)} products to #{filename}")
+          Logger.info("Written #{Enum.count(products)} products to #{filename}")
         after
           File.close(file)
         end
 
       {:error, reason} ->
-        IO.puts(:stderr, "Error while opening file: #{reason}")
+        Logger.error(:stderr, "Error while opening file: #{reason}")
     end
 
     {:ok, products}
